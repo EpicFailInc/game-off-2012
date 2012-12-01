@@ -9,17 +9,22 @@ public class Movement : MonoBehaviour
     public Camera SecondaryCamera;
 
     private Vector3 _targetVelocity;
+    private GameManager _gameManager;
 
     // Use this for initialization
     private void Start()
     {
         _targetVelocity = new Vector3(0, 0, MaxVelocity);
-
+        var manager = GameObject.FindGameObjectWithTag("Manager");
+        if (manager != null)
+        {
+            _gameManager = (GameManager)manager.GetComponent("GameManager");
+        }
     }
 
     private void FixedUpdate()
     {
-        float moveInput = Input.GetAxis("Horizontal");
+        float moveInput = Input.GetAxisRaw("Horizontal");
         if (moveInput > 0) moveInput = 1;
         else if (moveInput < 0) moveInput = -1;
         else moveInput = 0;
@@ -43,8 +48,26 @@ public class Movement : MonoBehaviour
             {
                 MainCamera.gameObject.active = SecondaryCamera.gameObject.active;
                 SecondaryCamera.gameObject.active = !SecondaryCamera.gameObject.active;
+            }else
+            {
+                Debug.Log("Error, camera missing. First camera missing? "+(MainCamera == null).ToString() + "; Secondary camera missing? "+(SecondaryCamera == null).ToString());
             }
         }
     }
 
+    void levelUp()
+    {
+        if(_gameManager != null)
+        {
+            _gameManager.LevelUp();
+        }
+    }
+
+    void OnTriggerEnter(Collider collision)
+    {
+        if (collision.gameObject.tag == "Finish")
+        {
+            levelUp();
+        }
+    }
 }
